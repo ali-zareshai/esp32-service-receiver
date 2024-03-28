@@ -39,6 +39,7 @@ func LoginUser(context *gin.Context) {
 		context.JSON(http.StatusNotAcceptable, gin.H{"token": "", "error": err.Error()})
 		return
 	}
+	user.Password = ""
 	token, err := generateToken(user)
 	if err != nil {
 		context.JSON(http.StatusNotAcceptable, gin.H{"token": "", "error": err.Error()})
