@@ -11,28 +11,31 @@ import (
 func DataController(engine *gin.Engine) {
 	r := engine.Group("/data")
 	{
-		r.GET("", func(context *gin.Context) {
-			count := context.DefaultQuery("count", "100")
-			if c, err := strconv.Atoi(count); err == nil {
-				data := service.FindData(c)
-				context.JSON(http.StatusOK, data)
-				return
-			}
+		r.GET("", getData)
+		r.POST("", addData)
 
-			context.JSON(http.StatusNotAcceptable, gin.H{"error": "error"})
-		})
+	}
+}
 
-		r.POST("", func(context *gin.Context) {
-			var model domain.DataModel
+func getData(context *gin.Context) {
+	count := context.DefaultQuery("count", "100")
+	if c, err := strconv.Atoi(count); err == nil {
+		data := service.FindData(c)
+		context.JSON(http.StatusOK, data)
+		return
+	}
 
-			if err := context.ShouldBindJSON(&model); err != nil {
-				context.JSON(http.StatusNotAcceptable, gin.H{"status": "error", "error": err})
-				return
-			}
-			if service.AddData(&model) {
-				context.JSON(http.StatusCreated, gin.H{"status": "success", "error": ""})
-			}
-		})
+	context.JSON(http.StatusNotAcceptable, gin.H{"error": "error"})
+}
 
+func addData(context *gin.Context) {
+	var model domain.DataModel
+
+	if err := context.ShouldBindJSON(&model); err != nil {
+		context.JSON(http.StatusNotAcceptable, gin.H{"status": "error", "error": err})
+		return
+	}
+	if service.AddData(&model) {
+		context.JSON(http.StatusCreated, gin.H{"status": "success", "error": ""})
 	}
 }
