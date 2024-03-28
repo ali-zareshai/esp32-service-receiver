@@ -23,13 +23,13 @@ func DataController(engine *gin.Engine) {
 		})
 
 		r.POST("", func(context *gin.Context) {
-			var req domain.DataJsonRequest
+			var model domain.DataModel
 
-			if err := context.ShouldBindJSON(&req); err != nil {
+			if err := context.ShouldBindJSON(&model); err != nil {
 				context.JSON(http.StatusNotAcceptable, gin.H{"status": "error", "error": err})
 				return
 			}
-			if service.AddData(req) {
+			if service.AddData(&model) {
 				context.JSON(http.StatusCreated, gin.H{"status": "success", "error": ""})
 			}
 		})
