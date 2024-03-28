@@ -7,7 +7,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 	"net/http"
 	"os"
 	"sensor_iot/Util"
@@ -16,6 +15,8 @@ import (
 	"strings"
 	"time"
 )
+
+var logger = Util.Logger
 
 type LoginRequest struct {
 	Username string `json:"username"`
@@ -65,13 +66,13 @@ func verifyPassword(password, hashPass string) error {
 func checkLogin(username string, password string) (user *domain.UserModel, err error) {
 	err = Util.MyDataBase.Model(domain.UserModel{}).Where("username=?", username).First(&user).Error
 	if err != nil {
-		log.Println(err.Error())
+		logger.Error(err)
 		return
 	}
 
 	err = verifyPassword(password, user.Password)
 	if err != nil && errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-		log.Println(err.Error())
+		logger.Error(err)
 		return
 	}
 
@@ -81,14 +82,14 @@ func checkLogin(username string, password string) (user *domain.UserModel, err e
 func generateToken(user *domain.UserModel) (string, error) {
 	tokenLife, err := strconv.Atoi(os.Getenv("TOKEN_HOUR_LIFESPAN"))
 	if err != nil {
-		log.Println(err.Error())
+		logger.Error(err)
 		return "", err
 	}
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
-		log.Println(err.Error())
+		logger.Error(err)
 		return "", err
 	}
 	claims["user"] = string(jsonUser)
@@ -96,7 +97,7 @@ func generateToken(user *domain.UserModel) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	jwtToke, err := token.SignedString([]byte(os.Getenv("API_SECRET")))
 	if err != nil {
-		log.Println(err.Error())
+		logger.Error(err)
 		return "", err
 	}
 	return jwtToke, nil
@@ -124,7 +125,6 @@ func ExtractUser(c *gin.Context) (user domain.UserModel, err error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
 		userJson := claims["user"]
-		log.Println(userJson)
 		err = json.Unmarshal([]byte(userJson.(string)), &user)
 	}
 	return
