@@ -10,8 +10,12 @@ func AddData(data *domain.DataModel) bool {
 	return true
 }
 
-func FindData(count int) []domain.DataModel {
+func FindData(count int, device string) []domain.DataModel {
 	var dataModels []domain.DataModel
-	Util.MyDataBase.Model(&domain.DataModel{}).Limit(count).Order("created_at").Find(&dataModels)
+	query := Util.MyDataBase.Model(&domain.DataModel{})
+	if device != "" {
+		query.Where("device=?", device)
+	}
+	query.Limit(count).Order("created_at").Find(&dataModels)
 	return dataModels
 }

@@ -19,8 +19,9 @@ func DataController(engine *gin.Engine) {
 
 func getData(context *gin.Context) {
 	count := context.DefaultQuery("count", "100")
+	device := context.DefaultQuery("device", "")
 	if c, err := strconv.Atoi(count); err == nil {
-		data := service.FindData(c)
+		data := service.FindData(c, device)
 		context.JSON(http.StatusOK, data)
 		return
 	}
