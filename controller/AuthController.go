@@ -129,3 +129,18 @@ func ExtractUser(c *gin.Context) (user domain.UserModel, err error) {
 	}
 	return
 }
+
+func JwtMiddleware() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		user, err := ExtractUser(context)
+		if err != nil {
+			context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			context.Abort()
+			return
+		}
+		context.Set("user_name", user.Name)
+		context.Set("user_id", user.ID)
+		context.Set("user_role", user.Role)
+		context.Next()
+	}
+}

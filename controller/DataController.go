@@ -11,7 +11,7 @@ import (
 func DataController(engine *gin.Engine) {
 	r := engine.Group("/data")
 	{
-		r.GET("", getData)
+		r.Use(JwtMiddleware()).GET("", getData)
 		r.POST("", addData)
 
 	}
