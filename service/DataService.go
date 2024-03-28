@@ -11,5 +11,7 @@ func AddData(data *domain.DataModel) bool {
 }
 
 func FindData(count int) []domain.DataModel {
-	return make([]domain.DataModel, 0)
+	var dataModels []domain.DataModel
+	Util.MyDataBase.Model(&domain.DataModel{}).Limit(count).Order("created_at").Find(&dataModels)
+	return dataModels
 }
