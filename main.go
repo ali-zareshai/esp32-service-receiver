@@ -27,6 +27,7 @@ func main() {
 	r := gin.Default()
 	controller.DataController(r)
 	controller.UserController(r)
+	controller.AuthController(r)
 
 	r.Run(":" + os.Getenv("SERVER_PORT"))
 }
