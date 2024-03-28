@@ -22,10 +22,11 @@ func main() {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	Util.MyDataBase.AutoMigrate(&domain.DataModel{})
+	Util.MyDataBase.AutoMigrate(&domain.DataModel{}, &domain.UserModel{})
 
 	r := gin.Default()
 	controller.DataController(r)
+	controller.UserController(r)
 
 	r.Run(":" + os.Getenv("SERVER_PORT"))
 }
