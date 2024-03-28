@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/sqlite"
@@ -25,6 +26,8 @@ func main() {
 	Util.MyDataBase.AutoMigrate(&domain.DataModel{}, &domain.UserModel{})
 
 	r := gin.Default()
+	r.Use(cors.Default())
+
 	controller.DataController(r)
 	controller.UserController(r)
 	controller.AuthController(r)
