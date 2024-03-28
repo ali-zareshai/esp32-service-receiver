@@ -2,14 +2,21 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"log"
+	"os"
 	"sensor_iot/Util"
 	"sensor_iot/controller"
 	"sensor_iot/domain"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err.Error())
+	}
+
 	var err error
 	Util.MyDataBase, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
@@ -20,5 +27,5 @@ func main() {
 	r := gin.Default()
 	controller.DataController(r)
 
-	r.Run()
+	r.Run(":" + os.Getenv("SERVER_PORT"))
 }
