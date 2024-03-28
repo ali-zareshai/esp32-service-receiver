@@ -19,7 +19,7 @@ func (user *UserModel) Save() {
 	Util.MyDataBase.Create(user)
 }
 
-func (user *UserModel) BeforeSave() error {
+func (user *UserModel) BeforeSave(tx *gorm.DB) error {
 	hashPassWord, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
