@@ -5,11 +5,6 @@ import (
 	"sensor_iot/domain"
 )
 
-func AddData(data *domain.DataModel) bool {
-	Util.MyDataBase.Create(data)
-	return true
-}
-
 func FindData(count int, device string) []domain.DataModel {
 	var dataModels []domain.DataModel
 	query := Util.MyDataBase.Model(&domain.DataModel{})

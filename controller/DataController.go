@@ -39,7 +39,8 @@ func addData(context *gin.Context) {
 		res.Response(http.StatusNotAcceptable, "error", err.Error())
 		return
 	}
-	if service.AddData(&model) {
-		res.Response(http.StatusCreated, "success", model)
-	}
+
+	model.Save()
+	res.Response(http.StatusCreated, "success", model)
+
 }

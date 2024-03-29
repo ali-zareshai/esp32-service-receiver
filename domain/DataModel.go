@@ -2,6 +2,7 @@ package domain
 
 import (
 	"gorm.io/gorm"
+	"sensor_iot/Util"
 )
 
 type DataModel struct {
@@ -12,4 +13,8 @@ type DataModel struct {
 	M33    string  `gorm:"column:m33" json:"m33"`
 	Ref    string  `gorm:"column:ref" json:"ref"`
 	Vout   string  `gorm:"column:vout" json:"vout"`
+}
+
+func (model *DataModel) Save() {
+	Util.MyDataBase.Create(model)
 }
