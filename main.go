@@ -20,9 +20,8 @@ import (
 
 func main() {
 	InitLogger()
-	logger := Util.Logger
 	if err := godotenv.Load(); err != nil {
-		logger.Error(err)
+		Util.Logger.Error(err)
 	}
 
 	ConnectToDB()
@@ -59,7 +58,6 @@ func InitLogger() {
 }
 
 func ConnectToDB() {
-	logger := Util.Logger
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tehran",
 		os.Getenv("DB_ADDRESS"),
 		os.Getenv("DB_USER"),
@@ -71,7 +69,7 @@ func ConnectToDB() {
 	var err error
 	Util.MyDataBase, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		logger.Error(err)
+		Util.Logger.Error(err)
 	}
 
 	Util.MyDataBase.AutoMigrate(&domain.DataModel{}, &domain.UserModel{})

@@ -16,8 +16,6 @@ import (
 	"time"
 )
 
-var logger = Util.Logger
-
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -67,13 +65,13 @@ func verifyPassword(password, hashPass string) error {
 func checkLogin(username string, password string) (user *domain.UserModel, err error) {
 	err = Util.MyDataBase.Model(domain.UserModel{}).Where("username=?", username).First(&user).Error
 	if err != nil {
-		logger.Error(err)
+		Util.Logger.Error(err.Error())
 		return
 	}
 
 	err = verifyPassword(password, user.Password)
 	if err != nil && errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-		logger.Error(err)
+		Util.Logger.Error(err.Error())
 		return
 	}
 
@@ -83,14 +81,14 @@ func checkLogin(username string, password string) (user *domain.UserModel, err e
 func generateToken(user *domain.UserModel) (string, error) {
 	tokenLife, err := strconv.Atoi(os.Getenv("TOKEN_HOUR_LIFESPAN"))
 	if err != nil {
-		logger.Error(err)
+		Util.Logger.Error(err)
 		return "", err
 	}
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
-		logger.Error(err)
+		Util.Logger.Error(err)
 		return "", err
 	}
 	claims["user"] = string(jsonUser)
@@ -98,7 +96,7 @@ func generateToken(user *domain.UserModel) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	jwtToke, err := token.SignedString([]byte(os.Getenv("API_SECRET")))
 	if err != nil {
-		logger.Error(err)
+		Util.Logger.Error(err)
 		return "", err
 	}
 	return jwtToke, nil
