@@ -30,33 +30,34 @@ func AuthController(engine *gin.Engine) {
 }
 
 func LoginUser(context *gin.Context) {
+	res := Util.Gin{C: context}
 	var req LoginRequest
 	if err := context.ShouldBindJSON(&req); err != nil {
-		context.JSON(http.StatusNotAcceptable, gin.H{"token": "", "error": err.Error()})
+		res.Response(http.StatusNotAcceptable, err.Error(), nil)
 		return
 	}
 	user, err := checkLogin(req.Username, req.Password)
 	if err != nil {
-		context.JSON(http.StatusNotAcceptable, gin.H{"token": "", "error": err.Error()})
+		res.Response(http.StatusNotAcceptable, err.Error(), nil)
 		return
 	}
 	user.Password = ""
 	token, err := generateToken(user)
 	if err != nil {
-		context.JSON(http.StatusNotAcceptable, gin.H{"token": "", "error": err.Error()})
+		res.Response(http.StatusNotAcceptable, err.Error(), nil)
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"token": token, "error": ""})
+	res.Response(http.StatusOK, "success", gin.H{"token": token})
 }
 
 func FindCurrentUser(c *gin.Context) {
 	user, err := ExtractUser(c)
+	res := Util.Gin{C: c}
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		res.Response(http.StatusUnauthorized, err.Error(), nil)
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	res.Response(http.StatusOK, "success", gin.H{"user": user})
 }
 
 func verifyPassword(password, hashPass string) error {
@@ -134,7 +135,8 @@ func JwtMiddleware() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		user, err := ExtractUser(context)
 		if err != nil {
-			context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			res := Util.Gin{C: context}
+			res.Response(http.StatusUnauthorized, err.Error(), nil)
 			context.Abort()
 			return
 		}
