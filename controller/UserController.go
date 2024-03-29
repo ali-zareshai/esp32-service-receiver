@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"gopkg.in/validator.v2"
 	"net/http"
 	"sensor_iot/Util"
 	"sensor_iot/domain"
@@ -19,6 +20,11 @@ func addUser(context *gin.Context) {
 	var user domain.UserModel
 	if err := context.ShouldBindJSON(&user); err != nil {
 		res.Response(http.StatusNotAcceptable, "error", err.Error())
+		return
+	}
+
+	if err := validator.Validate(user); err != nil {
+		res.Response(http.StatusBadRequest, "error", err.Error())
 		return
 	}
 	user.Save()
