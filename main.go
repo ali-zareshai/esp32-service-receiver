@@ -33,7 +33,7 @@ func main() {
 	Util.MyDataBase.AutoMigrate(&domain.DataModel{}, &domain.UserModel{})
 
 	r := gin.Default()
-	r.Use(cors.Default())
+	r.Use(cors.Default(), Util.RateLimitMiddleware())
 
 	controller.DataController(r)
 	controller.UserController(r)
