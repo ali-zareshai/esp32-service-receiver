@@ -1,13 +1,10 @@
 package controller
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"sensor_iot/Util"
 	"sensor_iot/domain"
-	"sensor_iot/service"
-	"strconv"
 )
 
 func DataController(engine *gin.Engine) {
@@ -21,14 +18,15 @@ func DataController(engine *gin.Engine) {
 
 func getData(context *gin.Context) {
 	res := Util.Gin{C: context}
-	count := context.DefaultQuery("count", "100")
+	var dataModels []domain.DataModel
 	device := context.DefaultQuery("device", "")
-	if c, err := strconv.Atoi(count); err == nil {
-		data := service.FindData(c, device)
-		res.Response(http.StatusOK, "success", data)
-		return
+	query := Util.MyDataBase.Model(&domain.DataModel{}).Scopes(Util.Paginate(context))
+	if device != "" {
+		query.Where(domain.DataModel{Device: device})
 	}
-	res.Response(http.StatusNotAcceptable, "error", errors.New("wrong count number"))
+	query.Find(&dataModels)
+	res.Response(http.StatusOK, "success", dataModels)
+
 }
 
 func addData(context *gin.Context) {
