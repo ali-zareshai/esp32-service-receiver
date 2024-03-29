@@ -1,12 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"io"
 	"os"
@@ -20,17 +21,11 @@ import (
 func main() {
 	InitLogger()
 	logger := Util.Logger
-	//logger.Error(errors.New("test shod22f"))
 	if err := godotenv.Load(); err != nil {
 		logger.Error(err)
 	}
 
-	var err error
-	Util.MyDataBase, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
-	if err != nil {
-		logger.Error(err)
-	}
-	Util.MyDataBase.AutoMigrate(&domain.DataModel{}, &domain.UserModel{})
+	ConnectToDB()
 
 	r := gin.Default()
 	r.Use(cors.Default(), Util.RateLimitMiddleware())
@@ -61,4 +56,24 @@ func InitLogger() {
 	Util.Logger.SetFormatter(logFormatter)
 	Util.Logger.SetLevel(logrus.InfoLevel)
 	Util.Logger.SetOutput(multiWriter)
+}
+
+func ConnectToDB() {
+	logger := Util.Logger
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tehran",
+		os.Getenv("DB_ADDRESS"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_DATABASE"),
+		os.Getenv("DB_PORT"),
+	)
+
+	var err error
+	Util.MyDataBase, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		logger.Error(err)
+	}
+
+	Util.MyDataBase.AutoMigrate(&domain.DataModel{}, &domain.UserModel{})
+
 }
