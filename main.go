@@ -25,6 +25,7 @@ func main() {
 	}
 
 	ConnectToDB()
+	Util.ConnectToRedis()
 
 	r := gin.Default()
 	r.Use(cors.Default(), Util.RateLimitMiddleware())

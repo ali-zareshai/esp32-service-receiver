@@ -2,6 +2,7 @@ package Util
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -9,6 +10,7 @@ import (
 var (
 	MyDataBase *gorm.DB
 	Logger     *logrus.Logger
+	MyRedis    *redis.Client
 )
 
 type Response struct {
