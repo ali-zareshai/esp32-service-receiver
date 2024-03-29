@@ -11,7 +11,7 @@ type UserModel struct {
 	gorm.Model
 	Name     string `gorm:"not null" json:"name"`
 	Username string `gorm:"size:255;not null;unique" json:"username" validate:"nonzero"`
-	Password string `gorm:"size:255;not null" validate:"nonzero"`
+	Password string `gorm:"size:255;not null" validate:"nonzero,len=8"`
 	Role     string `gorm:"column:rule" json:"role"`
 }
 
