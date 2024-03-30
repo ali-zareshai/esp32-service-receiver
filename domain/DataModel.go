@@ -1,8 +1,11 @@
 package domain
 
 import (
+	"encoding/json"
 	"gorm.io/gorm"
+	"os"
 	"sensor_iot/Util"
+	"strconv"
 )
 
 type DataModel struct {
@@ -17,4 +20,24 @@ type DataModel struct {
 
 func (model *DataModel) Save() {
 	Util.MyDataBase.Create(model)
+}
+
+func (model *DataModel) ToJson() string {
+	str, err := json.Marshal(model)
+	if err != nil {
+		return ""
+	}
+	return string(str)
+}
+
+func (model *DataModel) AfterSave(tx *gorm.DB) error {
+	alert, err := strconv.ParseFloat(os.Getenv("ALERT_RESULT"), 64)
+	if err != nil {
+		alert = 15.0
+	}
+	if model.Result >= alert {
+		jsonInfo := model.ToJson()
+		Util.Publish(Util.AlertRedisChannels, jsonInfo)
+	}
+	return nil
 }

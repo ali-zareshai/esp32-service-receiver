@@ -2,13 +2,19 @@ package Util
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"os"
 	"strconv"
+	"time"
 )
 
 var ctx = context.Background()
+
+const (
+	AlertRedisChannels = "alert"
+)
 
 func ConnectToRedis() {
 	dbNumber, err := strconv.Atoi(os.Getenv("REDIS_DB"))
@@ -20,4 +26,36 @@ func ConnectToRedis() {
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       dbNumber,
 	})
+}
+
+func Set(key string, data interface{}, expireTime time.Duration) error {
+	value, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	err = MyRedis.Set(ctx, key, value, expireTime*time.Second).Err()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Get(key string) (interface{}, error) {
+	var result interface{}
+	value, err := MyRedis.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return nil, fmt.Errorf("%v does not exists", key)
+	} else if err != nil {
+		return nil, err
+	} else {
+		json.Unmarshal([]byte(value), &result)
+		return result, nil
+	}
+}
+
+func Publish(channel string, msg interface{}) {
+	MyRedis.Publish(ctx, channel, msg)
 }
