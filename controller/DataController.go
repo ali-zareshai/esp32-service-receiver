@@ -18,6 +18,11 @@ func DataController(engine *gin.Engine) {
 
 func getData(context *gin.Context) {
 	res := Util.Gin{C: context}
+	cached, _ := Util.GetRedis(context.Request.URL.String())
+	if cached != nil {
+		res.Response(http.StatusOK, "success", cached)
+		return
+	}
 	var dataModels []domain.DataModel
 	device := context.DefaultQuery("device", "")
 	query := Util.MyDataBase.Model(&domain.DataModel{}).Scopes(Util.Paginate(context))
@@ -25,6 +30,7 @@ func getData(context *gin.Context) {
 		query.Where(domain.DataModel{Device: device})
 	}
 	query.Find(&dataModels)
+	Util.SetRedis(context.Request.URL.String(), dataModels, 300)
 	res.Response(http.StatusOK, "success", dataModels)
 
 }

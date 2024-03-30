@@ -37,7 +37,7 @@ func (model *DataModel) AfterSave(tx *gorm.DB) error {
 	}
 	if model.Result >= alert {
 		jsonInfo := model.ToJson()
-		Util.Publish(Util.AlertRedisChannels, jsonInfo)
+		Util.PublishRedis(Util.AlertRedisChannels, jsonInfo)
 	}
 	return nil
 }

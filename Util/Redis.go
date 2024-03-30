@@ -28,7 +28,7 @@ func ConnectToRedis() {
 	})
 }
 
-func Set(key string, data interface{}, expireTime time.Duration) error {
+func SetRedis(key string, data interface{}, expireTime time.Duration) error {
 	value, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func Set(key string, data interface{}, expireTime time.Duration) error {
 	return nil
 }
 
-func Get(key string) (interface{}, error) {
+func GetRedis(key string) (interface{}, error) {
 	var result interface{}
 	value, err := MyRedis.Get(ctx, key).Result()
 	if err == redis.Nil {
@@ -56,6 +56,6 @@ func Get(key string) (interface{}, error) {
 	}
 }
 
-func Publish(channel string, msg interface{}) {
+func PublishRedis(channel string, msg interface{}) {
 	MyRedis.Publish(ctx, channel, msg)
 }
