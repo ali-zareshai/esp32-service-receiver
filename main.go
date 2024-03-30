@@ -26,6 +26,7 @@ func main() {
 
 	ConnectToDB()
 	Util.ConnectToRedis()
+	go domain.SetupMqtt()
 
 	r := gin.Default()
 	r.Use(cors.Default(), Util.RateLimitMiddleware())
