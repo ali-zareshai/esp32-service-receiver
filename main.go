@@ -12,24 +12,24 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"sensor_iot/Util"
 	"sensor_iot/controller"
 	"sensor_iot/domain"
+	"sensor_iot/utils"
 	"time"
 )
 
 func main() {
 	InitLogger()
 	if err := godotenv.Load(); err != nil {
-		Util.Logger.Error(err)
+		utils.Logger.Error(err)
 	}
 
 	ConnectToDB()
-	Util.ConnectToRedis()
+	utils.ConnectToRedis()
 	go domain.SetupMqtt()
 
 	r := gin.Default()
-	r.Use(cors.Default(), Util.RateLimitMiddleware())
+	r.Use(cors.Default(), utils.RateLimitMiddleware())
 
 	controller.DataController(r)
 	controller.UserController(r)
@@ -53,10 +53,10 @@ func InitLogger() {
 	logFormatter.TimestampFormat = time.RFC3339
 	logFormatter.FullTimestamp = true
 
-	Util.Logger = logrus.New()
-	Util.Logger.SetFormatter(logFormatter)
-	Util.Logger.SetLevel(logrus.InfoLevel)
-	Util.Logger.SetOutput(multiWriter)
+	utils.Logger = logrus.New()
+	utils.Logger.SetFormatter(logFormatter)
+	utils.Logger.SetLevel(logrus.InfoLevel)
+	utils.Logger.SetOutput(multiWriter)
 }
 
 func ConnectToDB() {
@@ -69,11 +69,11 @@ func ConnectToDB() {
 	)
 
 	var err error
-	Util.MyDataBase, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	utils.MyDataBase, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		Util.Logger.Error(err)
+		utils.Logger.Error(err)
 	}
 
-	Util.MyDataBase.AutoMigrate(&domain.DataModel{}, &domain.UserModel{})
+	utils.MyDataBase.AutoMigrate(&domain.DataModel{}, &domain.UserModel{})
 
 }

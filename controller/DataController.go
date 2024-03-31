@@ -3,8 +3,8 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"sensor_iot/Util"
 	"sensor_iot/domain"
+	"sensor_iot/utils"
 )
 
 func DataController(engine *gin.Engine) {
@@ -17,26 +17,26 @@ func DataController(engine *gin.Engine) {
 }
 
 func getData(context *gin.Context) {
-	res := Util.Gin{C: context}
-	cached, _ := Util.GetRedis(context.Request.URL.String())
+	res := utils.Gin{C: context}
+	cached, _ := utils.GetRedis(context.Request.URL.String())
 	if cached != nil {
 		res.Response(http.StatusOK, "success", cached)
 		return
 	}
 	var dataModels []domain.DataModel
 	device := context.DefaultQuery("device", "")
-	query := Util.MyDataBase.Model(&domain.DataModel{}).Scopes(Util.Paginate(context))
+	query := utils.MyDataBase.Model(&domain.DataModel{}).Scopes(utils.Paginate(context))
 	if device != "" {
 		query.Where(domain.DataModel{Device: device})
 	}
 	query.Find(&dataModels)
-	Util.SetRedis(context.Request.URL.String(), dataModels, 300)
+	utils.SetRedis(context.Request.URL.String(), dataModels, 300)
 	res.Response(http.StatusOK, "success", dataModels)
 
 }
 
 func addData(context *gin.Context) {
-	res := Util.Gin{C: context}
+	res := utils.Gin{C: context}
 	var model domain.DataModel
 
 	if err := context.ShouldBindJSON(&model); err != nil {

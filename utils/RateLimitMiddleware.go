@@ -1,4 +1,4 @@
-package Util
+package utils
 
 import (
 	ratelimit "github.com/JGLTechnologies/gin-rate-limit"

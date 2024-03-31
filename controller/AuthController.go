@@ -9,8 +9,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"os"
-	"sensor_iot/Util"
 	"sensor_iot/domain"
+	"sensor_iot/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -28,7 +28,7 @@ func AuthController(engine *gin.Engine) {
 }
 
 func LoginUser(context *gin.Context) {
-	res := Util.Gin{C: context}
+	res := utils.Gin{C: context}
 	var req LoginRequest
 	if err := context.ShouldBindJSON(&req); err != nil {
 		res.Response(http.StatusNotAcceptable, err.Error(), nil)
@@ -50,7 +50,7 @@ func LoginUser(context *gin.Context) {
 
 func FindCurrentUser(c *gin.Context) {
 	user, err := ExtractUser(c)
-	res := Util.Gin{C: c}
+	res := utils.Gin{C: c}
 	if err != nil {
 		res.Response(http.StatusUnauthorized, err.Error(), nil)
 		return
@@ -63,15 +63,15 @@ func verifyPassword(password, hashPass string) error {
 }
 
 func checkLogin(username string, password string) (user *domain.UserModel, err error) {
-	err = Util.MyDataBase.Model(domain.UserModel{}).Where("username=?", username).First(&user).Error
+	err = utils.MyDataBase.Model(domain.UserModel{}).Where("username=?", username).First(&user).Error
 	if err != nil {
-		Util.Logger.Error(err.Error())
+		utils.Logger.Error(err.Error())
 		return
 	}
 
 	err = verifyPassword(password, user.Password)
 	if err != nil && errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-		Util.Logger.Error(err.Error())
+		utils.Logger.Error(err.Error())
 		return
 	}
 
@@ -81,14 +81,14 @@ func checkLogin(username string, password string) (user *domain.UserModel, err e
 func generateToken(user *domain.UserModel) (string, error) {
 	tokenLife, err := strconv.Atoi(os.Getenv("TOKEN_HOUR_LIFESPAN"))
 	if err != nil {
-		Util.Logger.Error(err)
+		utils.Logger.Error(err)
 		return "", err
 	}
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
-		Util.Logger.Error(err)
+		utils.Logger.Error(err)
 		return "", err
 	}
 	claims["user"] = string(jsonUser)
@@ -96,7 +96,7 @@ func generateToken(user *domain.UserModel) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	jwtToke, err := token.SignedString([]byte(os.Getenv("API_SECRET")))
 	if err != nil {
-		Util.Logger.Error(err)
+		utils.Logger.Error(err)
 		return "", err
 	}
 	return jwtToke, nil
@@ -133,7 +133,7 @@ func JwtMiddleware() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		user, err := ExtractUser(context)
 		if err != nil {
-			res := Util.Gin{C: context}
+			res := utils.Gin{C: context}
 			res.Response(http.StatusUnauthorized, err.Error(), nil)
 			context.Abort()
 			return

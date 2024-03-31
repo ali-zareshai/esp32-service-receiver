@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"gorm.io/gorm"
 	"os"
-	"sensor_iot/Util"
+	"sensor_iot/utils"
 	"strconv"
 )
 
@@ -19,7 +19,7 @@ type DataModel struct {
 }
 
 func (model *DataModel) Save() {
-	Util.MyDataBase.Create(model)
+	utils.MyDataBase.Create(model)
 }
 
 func (model *DataModel) ToJson() string {
@@ -37,7 +37,7 @@ func (model *DataModel) AfterSave(tx *gorm.DB) error {
 	}
 	if model.Result >= alert {
 		jsonInfo := model.ToJson()
-		Util.PublishRedis(Util.AlertRedisChannels, jsonInfo)
+		utils.PublishRedis(utils.AlertRedisChannels, jsonInfo)
 	}
 	return nil
 }

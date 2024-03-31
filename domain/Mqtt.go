@@ -5,7 +5,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"os"
 	"os/signal"
-	"sensor_iot/Util"
+	"sensor_iot/utils"
 	"strconv"
 	"strings"
 	"syscall"
@@ -20,7 +20,7 @@ func SetupMqtt() {
 	client := mqtt.NewClient(opt)
 
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		Util.Logger.Error(token.Error().Error())
+		utils.Logger.Error(token.Error().Error())
 		return
 	}
 
@@ -57,14 +57,14 @@ func receiveMsgFromBroker(topic string, msg string) {
 
 		data.Save()
 	} else {
-		Util.Logger.Error("data is not complete")
+		utils.Logger.Error("data is not complete")
 	}
 }
 
 func getParameter(param string) float64 {
 	num, err := strconv.ParseFloat(param, 64)
 	if err != nil {
-		Util.Logger.Error(err.Error())
+		utils.Logger.Error(err.Error())
 		num = 0.0
 	}
 	return num

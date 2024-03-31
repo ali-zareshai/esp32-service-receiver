@@ -4,7 +4,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"html"
-	"sensor_iot/Util"
+	"sensor_iot/utils"
 )
 
 type UserModel struct {
@@ -16,7 +16,7 @@ type UserModel struct {
 }
 
 func (user *UserModel) Save() {
-	Util.MyDataBase.Create(user)
+	utils.MyDataBase.Create(user)
 }
 
 func (user *UserModel) BeforeSave(tx *gorm.DB) error {
